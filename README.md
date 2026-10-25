@@ -16,7 +16,7 @@ The screenshots use fictional participant names and short timings (4–14 s) so 
 
 ![Participants tab, empty](docs/img/en/01-participants-empty.webp)
 
-**2. Paste the participants**, one per line. The panel counts valid, duplicate and empty lines (*Remove duplicates* and *Trim spaces* clean them up) and tells you when everything is ready.
+**2. Paste the participants**, one per line. The panel counts valid, duplicate and empty lines (*Remove duplicates* and *Trim spaces* clean them up) and tells you when everything is ready. The **Shuffle names** button reorders the list at random (the draw shuffles it again when it starts).
 
 ![Participants pasted and validated](docs/img/en/02-participants.webp)
 
