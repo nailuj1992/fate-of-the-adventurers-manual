@@ -5,7 +5,7 @@
 ▶ **Live version:** https://nailuj1992.github.io/fate-of-the-adventurers-manual/ (published automatically on GitHub Pages whenever a pull request is merged into `master`)
 
 A **configurable** draw (1 to 50 prizes) with no server and no installation: open `index.html` in your browser
-(keep `core.js`, `i18n.js` and the `locales/` and `img/` folders next to it). Here **the presenter confirms presence by hand** after checking the chat;
+(keep `adapter.js`, `core.js`, `i18n.js` and the `css/`, `ui/`, `locales/` and `img/` folders next to it: if you copy the page somewhere else, copy all of them). Here **the presenter confirms presence by hand** after checking the chat;
 there is no Twitch connection (that is what the sibling repository `fate-of-the-adventurers-twitch` is for). The engine is the same (`core.js`), so the rules are identical.
 
 ## Step by step (with screenshots)
@@ -88,7 +88,7 @@ Celestial introduction → countdown → selection → reveal → wait for confi
 - Presentation mode for OBS: `P` key (exit with `Esc`) or `index.html?view=presentation`.
 
 ## Languages (i18n)
-Interface in **English (default)** and **Spanish**; English is the default regardless of the browser's language. **EN | ES** switch at the top right (remembered in `localStorage`) or `index.html?lang=es`. It changes everything instantly, history included. The texts are in `locales/en.js` and `locales/es.js`; keep `core.js`, `i18n.js` and `locales/` next to `index.html`.
+Interface in **English (default)** and **Spanish**; English is the default regardless of the browser's language. **EN | ES** switch at the top right (remembered in `localStorage`) or `index.html?lang=es`. It changes everything instantly, history included. The texts are in `locales/en.js` and `locales/es.js`; keep `core.js`, `i18n.js`, `locales/` and `ui/` next to `index.html`.
 
 ## Rules
 - **Circular rotation** Niuzao → Yu'lon → Chi-ji according to the **round index** (not the winners). An absence **does not change the Celestial**; the rotation only advances when a winner is confirmed or the round ends deserted.
@@ -105,5 +105,5 @@ Interface in **English (default)** and **Spanish**; English is the default regar
 - Prize codes are neither shown nor stored.
 
 ## Customize
-`PERSONALIZACIÓN` comments in `index.html`: colors and background (CSS variables), the Celestials' glow colors (`STORY`), sounds (`SOUNDS`) and images (`EMBLEMS`, `img/` folder). Timings and limits: `core.js`. Interface and Celestial texts: `locales/*.js`.
+`PERSONALIZACIÓN` comments: colors and background (CSS variables) in `css/app.css`; the Celestials' glow colors (`STORY`), sounds (`SOUNDS`) and images (`EMBLEMS`, `img/` folder) in `ui/util.js`. Timings and limits: `core.js`. Interface and Celestial texts: `locales/*.js`.
 The draw uses `crypto.getRandomValues` with rejection (no modulo bias); `Math.random` is never used.
