@@ -1,20 +1,16 @@
 # Despliega la versión manual (sitio estático) en GitHub Pages.
 #
-# SE EJECUTA ÚNICAMENTE cuando un pull request hacia master se aprueba y se fusiona (event: pull_request_target "closed" con
-# merged == true). NO se ejecuta al abrir/actualizar un PR, ni por push directo, ni manualmente. Como master está protegida
-# (todo entra por PR), cada fusión aprobada a master es la única vía de publicación.
-#
-# Por qué pull_request_target y no pull_request: el entorno "github-pages" solo admite despliegues desde la rama por defecto
-# (master). Con pull_request el run se asocia a refs/pull/N/merge y sería rechazado; con pull_request_target el run se asocia
-# a master. Es seguro aquí porque el workflow siempre se lee desde master y solo actúa sobre código YA fusionado
-# (merge_commit_sha), nunca sobre código de un PR sin fusionar.
+# SE EJECUTA ÚNICAMENTE cuando un pull request hacia master se aprueba y se fusiona: el único evento que cambia master es el
+# push de esa fusión (master está protegida: PR obligatorio, también para administradores). Además, el job "guard" comprueba
+# que el commit pertenezca a un PR fusionado y, si no, no se construye ni se despliega nada.
+# NO hay disparadores pull_request / pull_request_target / workflow_dispatch: nunca se ejecuta código de un PR sin fusionar
+# ni de un fork, y no hay ejecuciones al abrir o actualizar PR.
 #
 # Requiere Settings → Pages → Source = "GitHub Actions" (ya habilitado).
 name: Deploy to GitHub Pages
 
 on:
-  pull_request_target:
-    types: [closed]
+  push:
     branches: [master]
 
 permissions:
@@ -26,15 +22,38 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      merged_pr: ${{ steps.check.outputs.merged_pr }}
+    steps:
+      - name: Require a merged pull request
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -e
+          n=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '[.[] | select(.merged_at != null and .base.ref == "master")] | length')
+          if [ "$n" -gt 0 ]; then
+            echo "merged_pr=true" >> "$GITHUB_OUTPUT"
+            echo "Commit $SHA belongs to a merged pull request: deploying."
+          else
+            echo "merged_pr=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Commit $SHA is not part of a merged pull request: nothing is deployed."
+          fi
+
   build:
-    # Solo si el PR se FUSIONÓ (un PR cerrado sin fusionar no despliega nada).
-    if: github.event.pull_request.merged == true
+    needs: guard
+    if: needs.guard.outputs.merged_pr == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the merged code
+      - name: Checkout master
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Assemble the site (only what the browser needs)
         run: |

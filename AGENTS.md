@@ -36,8 +36,8 @@ The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic
 ## Deployment (GitHub Pages)
 
 - The site is published at **https://nailuj1992.github.io/fate-of-the-adventurers-manual/** by `.github/workflows/pages.yml`.
-- **It runs ONLY when a pull request into `master` is approved and merged** (`pull_request_target` → `closed` with `merged == true`). It does **not** run when a PR is opened or updated, on direct pushes (which are blocked anyway) or manually: there is no `workflow_dispatch`, `push` or `pull_request` trigger, and none may be added without the maintainer's OK. Because `master` is protected, every change to `master` arrives through a PR, so every merged PR redeploys the site.
-- Why `pull_request_target`: the `github-pages` environment only accepts deployments from the default branch. The workflow is always read from `master` and only acts on already-merged code (`merge_commit_sha`); never check out or run code from an unmerged PR in it.
+- **It runs ONLY when a pull request into `master` is approved and merged.** The only trigger is `push` to `master`; since `master` is protected (PR required, admins included), that push is always the merge of a PR, and a `guard` job additionally checks through the API that the commit belongs to a **merged** PR, otherwise nothing is built or deployed. It does **not** run when a PR is opened or updated, and there is no manual trigger: `pull_request`, `pull_request_target` and `workflow_dispatch` must not be added without the maintainer's OK.
+- Why not `pull_request_target`: it runs with write permissions and secrets in the context of the base branch, which is unsafe whenever PR code can be checked out (SonarCloud flags it). Here the workflow only ever checks out `master` and never touches code from an unmerged PR or a fork. Keep it that way. Pass GitHub context values to `run:` steps through `env:`, never by interpolating `${{ … }}` inside the script.
 - **The live link must stay visible in three places** and be kept in sync if the URL ever changes: the repository **description** and **website** field (GitHub *About*), the top of both READMEs, and this file. When editing any of them, check the other two.
 - Only the files the browser needs are published (`index.html`, `core.js`, `i18n.js`, `locales/`, `img/`); `README*`, `AGENTS.md` and `.github/` are not.
 - The page is served from a **sub-path**, so every reference must stay **relative** (`img/…`, `locales/…`); never use absolute paths such as `/core.js`.
@@ -80,7 +80,7 @@ The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic
 
 - **Never push to `master` directly**; never push tags; never force-push.
 - Don't add dependencies, a bundler or a framework; the page must keep working from `file://` and from the Pages sub-path.
-- Don't change `.github/workflows/` unless asked (it deploys to production on every merged PR into `master`). Never add triggers other than the merged-PR one, and never add secrets or tokens to the workflow or to the published files.
+- Don't change `.github/workflows/` unless asked (it deploys to production on every merged PR into `master`). Never add triggers other than `push` to `master` (merged-PR gated), and never add secrets or tokens to the workflow or to the published files.
 - Never store credentials or personal data beyond the participant names the presenter types (kept only in the page / `localStorage`).
 - Don't remove the English default or let the browser language pick the UI language.
 - Don't change the Celestial artwork or names without being asked.
