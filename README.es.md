@@ -16,7 +16,7 @@ Los pantallazos usan nombres de participantes ficticios y tiempos cortos (4–14
 
 ![Pestaña Participantes, vacía](docs/img/es/01-participants-empty.webp)
 
-**2. Pega los participantes**, uno por línea. El panel cuenta las líneas válidas, duplicadas y vacías (*Quitar duplicados* y *Limpiar espacios* las arreglan) y avisa cuando todo está listo.
+**2. Pega los participantes**, uno por línea. El panel cuenta las líneas válidas, duplicadas y vacías (*Quitar duplicados* y *Limpiar espacios* las arreglan) y avisa cuando todo está listo. El botón **Barajar nombres** reordena la lista al azar (al iniciar, el sorteo la vuelve a barajar).
 
 ![Participantes pegados y validados](docs/img/es/02-participants.webp)
 
