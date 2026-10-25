@@ -1,0 +1,75 @@
+# Despliega la versión manual (sitio estático) en GitHub Pages.
+# - Pull requests: solo construye y valida el sitio (no despliega).
+# - Push a master (o ejecución manual desde master): construye, valida y despliega.
+# Requiere Settings → Pages → Source = "GitHub Actions" (ya habilitado).
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Un solo despliegue a la vez; si llega otro, se cancela el que aún no terminó.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble the site (only what the browser needs)
+        run: |
+          mkdir _site
+          cp index.html core.js i18n.js _site/
+          cp -r locales img _site/
+          touch _site/.nojekyll
+
+      - name: Validate the site
+        run: |
+          set -e
+          for f in index.html core.js i18n.js locales/en.js locales/es.js \
+                   img/niuzao.png img/yulon.webp img/chiji.png img/xuen.webp; do
+            test -s "_site/$f" || { echo "::error::Missing file in the site: $f"; exit 1; }
+          done
+          # Every local <script src> and <img src> referenced by index.html must exist in the site
+          grep -oE '(src)="[^"]+"' _site/index.html | cut -d'"' -f2 | grep -vE '^(https?:)?//|^data:' | sort -u | while read -r ref; do
+            test -e "_site/$ref" || { echo "::error::index.html references a missing file: $ref"; exit 1; }
+          done
+          # The page must not contain credentials or private files
+          ! find _site -name '.env*' -o -name 'tokens*' -o -name 'data' | grep . \
+            || { echo "::error::Sensitive file found in the site"; exit 1; }
+          echo "Site OK: $(find _site -type f | wc -l) files"
+
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      - name: Upload the site artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write      # publicar en Pages
+      id-token: write   # verificar que el despliegue viene de este workflow
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
