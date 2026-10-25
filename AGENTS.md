@@ -24,7 +24,8 @@ Static, single-page app (no server, no install) to run a live, fair draw of in-g
 
 | File | Purpose |
 |---|---|
-| `index.html` | The whole UI and the page script: renders the engine state and sends commands. Contains an **adapter** section (`MODE = 'manual'`) that runs the engine locally, persists settings and the in-progress event in `localStorage`, and restores it after a refresh (F5). |
+| `index.html` | The page markup and the script tags. Contains the inline **adapter** script (`MODE = 'manual'`) that runs the engine locally, persists settings and the in-progress event in `localStorage`, and restores it after a refresh (F5). |
+| `ui/*.js` | **Shared** UI scripts, loaded in this order: `util.js` (helpers, emblems), `state.js` (state mirror, i18n glue, UI clock), `admin.js` (participants, settings panel, start), `stage.js` (render, final screen, modal, buttons), `fx.js` (particles), then the inline adapter, then `main.js` (init + `boot()`). They are classic scripts sharing the global scope, so top-level code may only reference symbols from the same file or earlier ones. |
 | `core.js` | **Shared** pure engine (no DOM): settings and limits, validation, rotation, eligibility, state machine with a single phase scheduler, snapshot/restore. |
 | `i18n.js` + `locales/en.js`, `locales/es.js` | **Shared** i18n module and catalogs. |
 | `css/app.css` | **Shared** stylesheet (the whole look of the page, including the Xuen theme). Loaded with `<link rel="stylesheet" href="css/app.css">`. |
@@ -32,7 +33,7 @@ Static, single-page app (no server, no install) to run a live, fair draw of in-g
 | `README.md` / `README.es.md` | User docs (EN / ES), with a step-by-step section illustrated by `docs/img/`. |
 | `.github/workflows/pages.yml` | Builds, validates and deploys the site to GitHub Pages. |
 
-The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic scripts (so it works from `file://`). Keep those relative paths.
+The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js`, `ui/*.js` as classic scripts (so it works from `file://`; no ES modules). Keep those relative paths.
 
 ## Deployment (GitHub Pages)
 
@@ -40,7 +41,7 @@ The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic
 - **It runs ONLY when a pull request into `master` is approved and merged.** The only trigger is `push` to `master`; since `master` is protected (PR required, admins included), that push is always the merge of a PR, and a `guard` job additionally checks through the API that the commit belongs to a **merged** PR, otherwise nothing is built or deployed. It does **not** run when a PR is opened or updated, and there is no manual trigger: `pull_request`, `pull_request_target` and `workflow_dispatch` must not be added without the maintainer's OK.
 - Why not `pull_request_target`: it runs with write permissions and secrets in the context of the base branch, which is unsafe whenever PR code can be checked out (SonarCloud flags it). Here the workflow only ever checks out `master` and never touches code from an unmerged PR or a fork. Keep it that way. Pass GitHub context values to `run:` steps through `env:`, never by interpolating `${{ … }}` inside the script.
 - **The live link must stay visible in three places** and be kept in sync if the URL ever changes: the repository **description** and **website** field (GitHub *About*), the top of both READMEs, and this file. When editing any of them, check the other two.
-- Only the files the browser needs are published (`index.html`, `core.js`, `i18n.js`, `locales/`, `css/`, `img/`); `README*`, `AGENTS.md` and `.github/` are not.
+- Only the files the browser needs are published (`index.html`, `core.js`, `i18n.js`, `locales/`, `css/`, `ui/`, `img/`); `README*`, `AGENTS.md` and `.github/` are not.
 - The page is served from a **sub-path**, so every reference must stay **relative** (`img/…`, `locales/…`); never use absolute paths such as `/core.js`.
 - **If you add a runtime file** (script, image, stylesheet) the page needs, add it to the *Assemble* and *Validate* steps of the workflow in the same pull request, or it will not be deployed.
 - Pages source is *GitHub Actions* (repository setting). Do not switch it to "deploy from a branch".
@@ -59,14 +60,14 @@ The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic
 
 - **i18n.** Every user-facing string goes through `I18n.t(...)` / `data-i18n`; engine messages are *keys + params*. **English is the default**, independent of the browser language. Every key in **both** catalogs with the same `{params}`. Spanish uses correct orthography (accents, `ñ`). User-entered data is never translated.
 - **Persistence:** `localStorage` only for settings (`celestiales.config.v1`), the in-progress event (`celestiales.state.v1`) and the language (`celestiales.locale`). Always wrap access in `try/catch`; the app must work when storage is unavailable. Never store credentials.
-- **Shared files** (`core.js`, `i18n.js`, `locales/*`, `css/app.css`) must stay **byte-identical** with the sibling repo.
-- **UI parity.** `index.html` here and `public/index.html` in the Twitch repo are the same UI with a different adapter block (`/* ---- Adaptador … ---- */`: `MODE`, `api()`, `boot()`). There is no generator: apply any UI change to **both** files.
+- **Shared files** (`core.js`, `i18n.js`, `locales/*`, `css/app.css`, `ui/*.js`) must stay **byte-identical** with the sibling repo.
+- **UI parity.** `index.html` here and `public/index.html` in the Twitch repo differ only in the inline adapter script (`/* ---- Adaptador … ---- */`: `MODE`, `api()`, `boot()`); everything else is shared (`ui/*.js`, `css/app.css`) and `tests/shared.test.js` in the Twitch repo checks it. There is no generator: apply any UI change to **both** repos.
 - Style: 2-space indentation, `'use strict'`, match the surrounding code, comments in Spanish.
 - Celestial names: **Niuzao, Yu'lon, Chi-ji (lowercase *j*, as on Wowhead), Xuen**; long names in `celestial.*.long`.
 
 ## Common tasks
 
-- **Add a setting:** `DEFAULT_CONFIG` + `LIMITS` (and `toMs`) in `core.js`, labels/help in both catalogs, `CFG_MAIN`/`CFG_ADV` in `index.html`, README tables (EN/ES). Sync shared files to the sibling repo.
+- **Add a setting:** `DEFAULT_CONFIG` + `LIMITS` (and `toMs`) in `core.js`, labels/help in both catalogs, `CFG_MAIN`/`CFG_ADV` in `ui/admin.js`, README tables (EN/ES). Sync shared files to the sibling repo.
 - **Screenshots:** the step-by-step section of both READMEs uses `docs/img/<en|es>/NN-*.webp` (not published to Pages). They show fictional participant names only. When the UI changes visibly, retake them (same steps, both languages) and keep the file names.
 - **Change a message:** edit the key in **both** catalogs.
 - **Add a language:** new `locales/xx.js`, register it in `i18n.js` and as a `<script>` in `index.html`; extend the switcher.
