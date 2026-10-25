@@ -59,18 +59,18 @@ jobs:
         run: |
           mkdir _site
           cp index.html core.js i18n.js _site/
-          cp -r locales img _site/
+          cp -r locales img css _site/
           touch _site/.nojekyll
 
       - name: Validate the site
         run: |
           set -e
-          for f in index.html core.js i18n.js locales/en.js locales/es.js \
+          for f in index.html core.js i18n.js locales/en.js locales/es.js css/app.css \
                    img/niuzao.png img/yulon.webp img/chiji.png img/xuen.webp; do
             test -s "_site/$f" || { echo "::error::Missing file in the site: $f"; exit 1; }
           done
-          # Every local <script src> and <img src> referenced by index.html must exist in the site
-          grep -oE '(src)="[^"]+"' _site/index.html | cut -d'"' -f2 | grep -vE '^(https?:)?//|^data:' | sort -u | while read -r ref; do
+          # Every local <script src>, <img src> and <link href> referenced by index.html must exist in the site
+          grep -oE '(src|href)="[^"]+"' _site/index.html | cut -d'"' -f2 | grep -vE '^(https?:)?//|^data:' | sort -u | while read -r ref; do
             test -e "_site/$ref" || { echo "::error::index.html references a missing file: $ref"; exit 1; }
           done
           # The page must not contain credentials or private files
