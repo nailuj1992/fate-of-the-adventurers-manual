@@ -1,0 +1,101 @@
+# Despliega la versión manual (sitio estático) en GitHub Pages.
+#
+# SE EJECUTA ÚNICAMENTE cuando un pull request hacia master se aprueba y se fusiona: el único evento que cambia master es el
+# push de esa fusión (master está protegida: PR obligatorio, también para administradores). Además, el job "guard" comprueba
+# que el commit pertenezca a un PR fusionado y, si no, no se construye ni se despliega nada.
+# NO hay disparadores pull_request / pull_request_target / workflow_dispatch: nunca se ejecuta código de un PR sin fusionar
+# ni de un fork, y no hay ejecuciones al abrir o actualizar PR.
+#
+# Requiere Settings → Pages → Source = "GitHub Actions" (ya habilitado).
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+# Un solo despliegue a la vez, sin cancelar el que está en curso (los PR se fusionan de uno en uno).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      merged_pr: ${{ steps.check.outputs.merged_pr }}
+    steps:
+      - name: Require a merged pull request
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -e
+          n=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '[.[] | select(.merged_at != null and .base.ref == "master")] | length')
+          if [ "$n" -gt 0 ]; then
+            echo "merged_pr=true" >> "$GITHUB_OUTPUT"
+            echo "Commit $SHA belongs to a merged pull request: deploying."
+          else
+            echo "merged_pr=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Commit $SHA is not part of a merged pull request: nothing is deployed."
+          fi
+
+  build:
+    needs: guard
+    if: needs.guard.outputs.merged_pr == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+
+      - name: Assemble the site (only what the browser needs)
+        run: |
+          mkdir _site
+          cp index.html core.js i18n.js _site/
+          cp -r locales img _site/
+          touch _site/.nojekyll
+
+      - name: Validate the site
+        run: |
+          set -e
+          for f in index.html core.js i18n.js locales/en.js locales/es.js \
+                   img/niuzao.png img/yulon.webp img/chiji.png img/xuen.webp; do
+            test -s "_site/$f" || { echo "::error::Missing file in the site: $f"; exit 1; }
+          done
+          # Every local <script src> and <img src> referenced by index.html must exist in the site
+          grep -oE '(src)="[^"]+"' _site/index.html | cut -d'"' -f2 | grep -vE '^(https?:)?//|^data:' | sort -u | while read -r ref; do
+            test -e "_site/$ref" || { echo "::error::index.html references a missing file: $ref"; exit 1; }
+          done
+          # The page must not contain credentials or private files
+          ! find _site -name '.env*' -o -name 'tokens*' -o -name 'data' | grep . \
+            || { echo "::error::Sensitive file found in the site"; exit 1; }
+          echo "Site OK: $(find _site -type f | wc -l) files"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write      # publicar en Pages
+      id-token: write   # verificar que el despliegue viene de este workflow
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
