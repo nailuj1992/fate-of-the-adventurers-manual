@@ -21,6 +21,7 @@ La configuración se guarda en el **navegador** (`localStorage`, sin credenciale
 
 ## Flujo (automático tras «Iniciar sorteo»)
 Introducción del Celestial → cuenta atrás → selección → revelación → espera de confirmación → ganador o ausente visible → transición → siguiente ronda.
+- **Último candidato:** si, tras no responder los demás, queda **una sola** persona elegible para ese premio, ya no hay nada que sortear: se salta la cuenta atrás y el roll y esa persona se revela de inmediato como candidata (aun así debe confirmar su presencia a tiempo).
 - El **plazo de confirmación empieza al terminar la revelación**; ninguna animación previa descuenta tiempo.
 - Controles: **Confirmar presencia** (cuando compruebas que escribió en el chat), **Pausar** (congela la fase en curso, también el plazo), **Saltar espera**, **Descalificar del sorteo** (global, con confirmación y motivo obligatorio), **Cancelar sorteo** y **Reiniciar sorteo**.
 - Si **actualizas la página (F5)** durante un evento, se **restaura** (estado en `localStorage`, con el plazo calculado desde su hora límite absoluta). Al terminar o volver al panel, ese estado se borra.

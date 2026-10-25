@@ -22,6 +22,7 @@ The settings are stored in the **browser** (`localStorage`, no credentials) and 
 
 ## Flow (automatic after "Start draw")
 Celestial introduction → countdown → selection → reveal → wait for confirmation → winner or absent shown → transition → next round.
+- **Last candidate:** if, after the others did not answer, only **one** eligible person is left for that prize, there is nothing left to draw: the countdown and the roll are skipped and that person is revealed right away as the candidate (they still have to confirm their presence in time).
 - The **confirmation time starts when the reveal ends**; no earlier animation uses up any time.
 - Controls: **Confirm presence** (when you have checked that they wrote in the chat), **Pause** (freezes the current phase, including the time limit), **Skip wait**, **Disqualify from the draw** (global, with confirmation and a required reason), **Cancel draw** and **Restart draw**.
 - If you **refresh the page (F5)** during an event, it is **restored** (state in `localStorage`, with the time limit computed from its absolute deadline). When it finishes or you return to the panel, that state is deleted.
