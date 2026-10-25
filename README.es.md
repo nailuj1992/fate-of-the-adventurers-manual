@@ -8,6 +8,64 @@ Sorteo **configurable** (de 1 a 50 premios) sin servidor ni instalación: abre `
 (mantén `core.js` y la carpeta `img/` a su lado). Aquí **el presentador confirma la presencia a mano** tras comprobar el chat;
 no hay conexión con Twitch (para eso está el repositorio hermano `fate-of-the-adventurers-twitch`). El motor es el mismo (`core.js`), así que las reglas son idénticas.
 
+## Paso a paso (con pantallazos)
+
+Los pantallazos usan nombres de participantes ficticios y tiempos cortos (4–14 s) para que todo el evento quepa en pocos minutos; los valores por defecto están en *Configurar un sorteo*.
+
+**1. Abre la página.** Abre `index.html` (o la versión en línea). La pestaña **Participantes** es el punto de partida; **EN | ES** cambia el idioma.
+
+![Pestaña Participantes, vacía](docs/img/es/01-participants-empty.webp)
+
+**2. Pega los participantes**, uno por línea. El panel cuenta las líneas válidas, duplicadas y vacías (*Quitar duplicados* y *Limpiar espacios* las arreglan) y avisa cuando todo está listo.
+
+![Participantes pegados y validados](docs/img/es/02-participants.webp)
+
+**3. Configura premios y tiempos** en la pestaña **Configuración**: cantidad de ganadores, tiempo para confirmar presencia y duración de cada fase; a la derecha se ve el orden de los Celestiales.
+
+![Pestaña Configuración](docs/img/es/03-settings.webp)
+
+La sección **Avanzado** (margen de entrega extra y tiempo de recuperación) y los iconos **«?»** explican cada opción. Guarda la configuración o ve directo a **Iniciar sorteo**.
+
+![Configuración avanzada](docs/img/es/04-settings-advanced.webp)
+
+**4. Inicia el sorteo.** Te pide confirmar el número de participantes y de premios. Una vez iniciado, la configuración queda bloqueada.
+
+![Confirmación de inicio](docs/img/es/05-start-confirm.webp)
+
+**5. Cada ronda avanza sola.** Se presenta al Celestial, luego vienen la cuenta atrás, la animación de selección y la revelación de la persona elegida. El sorteo usa `crypto.getRandomValues`.
+
+![Presentación del Celestial](docs/img/es/06-intro.webp)
+
+![Cuenta atrás](docs/img/es/07-countdown.webp)
+
+![Animación de selección](docs/img/es/08-roll.webp)
+
+![Revelación de la persona elegida](docs/img/es/09-reveal.webp)
+
+**6. Espera la confirmación.** La persona elegida tiene el tiempo de confirmación para escribir en el chat del stream; cuando lo veas, pulsa **Confirmar presencia**. Puedes **pausar** el temporizador o **descalificar** a la persona (con confirmación y motivo escrito).
+
+![Esperando la confirmación](docs/img/es/10-confirming.webp)
+
+![Temporizador en pausa](docs/img/es/12-paused.webp)
+
+![Diálogo de descalificación](docs/img/es/11-disqualify.webp)
+
+**7. Ganador y transición.** Se muestra al ganador confirmado y empieza la siguiente ronda con el siguiente Celestial.
+
+![Ganador confirmado](docs/img/es/13-winner.webp)
+
+![Transición a la siguiente ronda](docs/img/es/14-transition.webp)
+
+**8. Ausencia.** Si se agota el tiempo, la persona se muestra como ausente (excluida solo de esa ronda) y se sortea otro candidato. Si solo queda una persona elegible, se revela directamente, sin cuenta atrás ni roll.
+
+![Participante ausente](docs/img/es/15-absent.webp)
+
+**9. Pantalla final e historial.** Cuando todos los premios están asignados (o recuperados por Xuen), se muestran los ganadores con su Celestial; el presentador entrega los códigos en persona. El historial conserva cada paso del evento.
+
+![Pantalla final](docs/img/es/16-final.webp)
+
+![Historial del evento](docs/img/es/17-history.webp)
+
 ## Configurar un sorteo
 En el panel de administración, pestaña **Configuración**:
 1. **Cantidad de ganadores**: 1–50 (por defecto 3), sin superar los participantes válidos.

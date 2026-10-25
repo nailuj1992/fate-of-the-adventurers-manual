@@ -8,6 +8,64 @@ A **configurable** draw (1 to 50 prizes) with no server and no installation: ope
 (keep `core.js`, `i18n.js` and the `locales/` and `img/` folders next to it). Here **the presenter confirms presence by hand** after checking the chat;
 there is no Twitch connection (that is what the sibling repository `fate-of-the-adventurers-twitch` is for). The engine is the same (`core.js`), so the rules are identical.
 
+## Step by step (with screenshots)
+
+The screenshots use fictional participant names and short timings (4–14 s) so the whole event fits in a few minutes; the defaults are in *Set up a draw*.
+
+**1. Open the page.** Open `index.html` (or the live version). The **Participants** tab is where everything starts; **EN | ES** switches the language.
+
+![Participants tab, empty](docs/img/en/01-participants-empty.webp)
+
+**2. Paste the participants**, one per line. The panel counts valid, duplicate and empty lines (*Remove duplicates* and *Trim spaces* clean them up) and tells you when everything is ready.
+
+![Participants pasted and validated](docs/img/en/02-participants.webp)
+
+**3. Set the prizes and timings** in the **Settings** tab: number of winners, time to confirm presence and the duration of each phase, with the order of the Celestials on the right.
+
+![Settings tab](docs/img/en/03-settings.webp)
+
+The **Advanced** section (extra delivery margin and recovery time) and the **"?"** help icons explain every option. Save the settings or go straight to **Start draw**.
+
+![Advanced settings](docs/img/en/04-settings-advanced.webp)
+
+**4. Start the draw.** You are asked to confirm the number of participants and prizes. Once started, the settings are locked.
+
+![Start confirmation](docs/img/en/05-start-confirm.webp)
+
+**5. Each round runs by itself.** The Celestial is introduced, then the countdown, the selection animation and the reveal of the chosen person. The draw uses `crypto.getRandomValues`.
+
+![Celestial introduction](docs/img/en/06-intro.webp)
+
+![Countdown](docs/img/en/07-countdown.webp)
+
+![Selection animation](docs/img/en/08-roll.webp)
+
+![Reveal of the chosen person](docs/img/en/09-reveal.webp)
+
+**6. Wait for the confirmation.** The chosen person has the confirmation time to write in the stream chat; when you see it, press **Confirm presence**. You can **pause** the timer or **disqualify** the person (with a confirmation and a written reason).
+
+![Waiting for confirmation](docs/img/en/10-confirming.webp)
+
+![Paused timer](docs/img/en/12-paused.webp)
+
+![Disqualification dialog](docs/img/en/11-disqualify.webp)
+
+**7. Winner and transition.** A confirmed winner is shown, then the next round starts with the next Celestial.
+
+![Confirmed winner](docs/img/en/13-winner.webp)
+
+![Transition to the next round](docs/img/en/14-transition.webp)
+
+**8. Absence.** If the time runs out, the person is shown as absent (excluded from that round only) and another candidate is drawn. If only one eligible person is left, they are revealed directly, without countdown or roll.
+
+![Absent participant](docs/img/en/15-absent.webp)
+
+**9. Final screen and history.** When all the prizes are assigned (or recovered by Xuen), the winners are shown with their Celestial; the presenter hands the codes over personally. The history keeps every step of the event.
+
+![Final screen](docs/img/en/16-final.webp)
+
+![Event history](docs/img/en/17-history.webp)
+
 ## Set up a draw
 In the admin panel, **Settings** tab:
 1. **Number of winners**: 1–50 (default 3), not exceeding the number of valid participants.

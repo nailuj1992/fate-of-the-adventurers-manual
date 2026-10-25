@@ -28,7 +28,7 @@ Static, single-page app (no server, no install) to run a live, fair draw of in-g
 | `core.js` | **Shared** pure engine (no DOM): settings and limits, validation, rotation, eligibility, state machine with a single phase scheduler, snapshot/restore. |
 | `i18n.js` + `locales/en.js`, `locales/es.js` | **Shared** i18n module and catalogs. |
 | `img/` | Celestial images. Third-party artwork (not owned by the maintainer): do not add more of it or redistribute it elsewhere; the maintainer decides if it must be replaced. |
-| `README.md` / `README.es.md` | User docs (EN / ES). |
+| `README.md` / `README.es.md` | User docs (EN / ES), with a step-by-step section illustrated by `docs/img/`. |
 | `.github/workflows/pages.yml` | Builds, validates and deploys the site to GitHub Pages. |
 
 The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic scripts (so it works from `file://`). Keep those relative paths.
@@ -66,6 +66,7 @@ The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic
 ## Common tasks
 
 - **Add a setting:** `DEFAULT_CONFIG` + `LIMITS` (and `toMs`) in `core.js`, labels/help in both catalogs, `CFG_MAIN`/`CFG_ADV` in `index.html`, README tables (EN/ES). Sync shared files to the sibling repo.
+- **Screenshots:** the step-by-step section of both READMEs uses `docs/img/<en|es>/NN-*.webp` (not published to Pages). They show fictional participant names only. When the UI changes visibly, retake them (same steps, both languages) and keep the file names.
 - **Change a message:** edit the key in **both** catalogs.
 - **Add a language:** new `locales/xx.js`, register it in `i18n.js` and as a `<script>` in `index.html`; extend the switcher.
 - **Change engine behaviour:** edit `core.js`; its tests live in the **Twitch repo** (`tests/core.test.js`, simulated clock). Add/adjust them there in the matching branch, and sync `core.js` here.
