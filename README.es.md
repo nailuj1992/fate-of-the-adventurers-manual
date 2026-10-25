@@ -5,7 +5,7 @@
 ▶ **Versión en línea:** https://nailuj1992.github.io/fate-of-the-adventurers-manual/ (se publica automáticamente en GitHub Pages cada vez que se fusiona un pull request hacia `master`)
 
 Sorteo **configurable** (de 1 a 50 premios) sin servidor ni instalación: abre `index.html` en el navegador
-(mantén `core.js` y la carpeta `img/` a su lado). Aquí **el presentador confirma la presencia a mano** tras comprobar el chat;
+(mantén `adapter.js`, `core.js`, `i18n.js` y las carpetas `css/`, `ui/`, `locales/` e `img/` a su lado: si copias la página a otro sitio, copia todo eso). Aquí **el presentador confirma la presencia a mano** tras comprobar el chat;
 no hay conexión con Twitch (para eso está el repositorio hermano `fate-of-the-adventurers-twitch`). El motor es el mismo (`core.js`), así que las reglas son idénticas.
 
 ## Paso a paso (con pantallazos)
@@ -87,7 +87,7 @@ Introducción del Celestial → cuenta atrás → selección → revelación →
 - Modo presentación para OBS: tecla `P` (salir con `Esc`) o `index.html?view=presentation`.
 
 ## Idiomas (i18n)
-Interfaz en **inglés (por defecto)** y **español**; el inglés es el idioma por defecto sin importar el del navegador. Selector **EN | ES** arriba a la derecha (se recuerda en `localStorage`) o `index.html?lang=es`. Cambia todo al instante, historial incluido. Los textos están en `locales/en.js` y `locales/es.js`; mantén `core.js`, `i18n.js` y `locales/` junto a `index.html`.
+Interfaz en **inglés (por defecto)** y **español**; el inglés es el idioma por defecto sin importar el del navegador. Selector **EN | ES** arriba a la derecha (se recuerda en `localStorage`) o `index.html?lang=es`. Cambia todo al instante, historial incluido. Los textos están en `locales/en.js` y `locales/es.js`; mantén `core.js`, `i18n.js`, `locales/` y `ui/` junto a `index.html`.
 
 ## Reglas
 - **Rotación circular** Niuzao → Yu'lon → Chi-ji según el **índice de la ronda** (no según los ganadores). Una ausencia **no cambia el Celestial**; la rotación solo avanza al confirmarse un ganador o quedar la ronda desierta.
@@ -104,5 +104,5 @@ Interfaz en **inglés (por defecto)** y **español**; el inglés es el idioma po
 - No se muestran ni guardan los códigos de los premios.
 
 ## Personalizar
-Comentarios `PERSONALIZACIÓN` en `index.html`: colores y fondo (variables CSS), colores de brillo de los Celestiales (`STORY`), sonidos (`SOUNDS`) e imágenes (`EMBLEMS`, carpeta `img/`). Tiempos y límites: `core.js`. Textos de la interfaz y de los Celestiales: `locales/*.js`.
+Comentarios `PERSONALIZACIÓN`: colores y fondo (variables CSS) en `css/app.css`; colores de brillo de los Celestiales (`STORY`), sonidos (`SOUNDS`) e imágenes (`EMBLEMS`, carpeta `img/`) en `ui/util.js`. Tiempos y límites: `core.js`. Textos de la interfaz y de los Celestiales: `locales/*.js`.
 La selección usa `crypto.getRandomValues` con rechazo (sin sesgo de módulo); no se usa `Math.random`.
