@@ -1,30 +1,40 @@
 # Despliega la versión manual (sitio estático) en GitHub Pages.
-# - Pull requests: solo construye y valida el sitio (no despliega).
-# - Push a master (o ejecución manual desde master): construye, valida y despliega.
+#
+# SE EJECUTA ÚNICAMENTE cuando un pull request hacia master se aprueba y se fusiona (event: pull_request_target "closed" con
+# merged == true). NO se ejecuta al abrir/actualizar un PR, ni por push directo, ni manualmente. Como master está protegida
+# (todo entra por PR), cada fusión aprobada a master es la única vía de publicación.
+#
+# Por qué pull_request_target y no pull_request: el entorno "github-pages" solo admite despliegues desde la rama por defecto
+# (master). Con pull_request el run se asocia a refs/pull/N/merge y sería rechazado; con pull_request_target el run se asocia
+# a master. Es seguro aquí porque el workflow siempre se lee desde master y solo actúa sobre código YA fusionado
+# (merge_commit_sha), nunca sobre código de un PR sin fusionar.
+#
 # Requiere Settings → Pages → Source = "GitHub Actions" (ya habilitado).
 name: Deploy to GitHub Pages
 
 on:
-  push:
+  pull_request_target:
+    types: [closed]
     branches: [master]
-  pull_request:
-    branches: [master]
-  workflow_dispatch:
 
 permissions:
   contents: read
 
-# Un solo despliegue a la vez; si llega otro, se cancela el que aún no terminó.
+# Un solo despliegue a la vez, sin cancelar el que está en curso (los PR se fusionan de uno en uno).
 concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
+    # Solo si el PR se FUSIONÓ (un PR cerrado sin fusionar no despliega nada).
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout the merged code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Assemble the site (only what the browser needs)
         run: |
@@ -50,17 +60,14 @@ jobs:
           echo "Site OK: $(find _site -type f | wc -l) files"
 
       - name: Configure Pages
-        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
 
       - name: Upload the site artifact
-        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
   deploy:
-    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     permissions:

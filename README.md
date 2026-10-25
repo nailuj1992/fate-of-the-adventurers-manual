@@ -2,7 +2,7 @@
 
 > 🌐 **English** · [Español](README.es.md)
 
-▶ **Live version:** https://nailuj1992.github.io/fate-of-the-adventurers-manual/ (deployed automatically to GitHub Pages from `master`)
+▶ **Live version:** https://nailuj1992.github.io/fate-of-the-adventurers-manual/ (published automatically on GitHub Pages whenever a pull request is merged into `master`)
 
 A **configurable** draw (1 to 50 prizes) with no server and no installation: open `index.html` in your browser
 (keep `core.js`, `i18n.js` and the `locales/` and `img/` folders next to it). Here **the presenter confirms presence by hand** after checking the chat;

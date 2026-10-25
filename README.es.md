@@ -2,7 +2,7 @@
 
 > 🌐 [English](README.md) · **Español**
 
-▶ **Versión en línea:** https://nailuj1992.github.io/fate-of-the-adventurers-manual/ (se despliega automáticamente en GitHub Pages desde `master`)
+▶ **Versión en línea:** https://nailuj1992.github.io/fate-of-the-adventurers-manual/ (se publica automáticamente en GitHub Pages cada vez que se fusiona un pull request hacia `master`)
 
 Sorteo **configurable** (de 1 a 50 premios) sin servidor ni instalación: abre `index.html` en el navegador
 (mantén `core.js` y la carpeta `img/` a su lado). Aquí **el presentador confirma la presencia a mano** tras comprobar el chat;
