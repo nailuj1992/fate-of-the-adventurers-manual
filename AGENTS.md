@@ -9,6 +9,7 @@ Guidance for AI coding agents working in this repository.
 - Never force-push a shared branch, never rewrite pushed history, never bypass hooks (`--no-verify`).
 - Commit only what you were asked to commit: run `git status` first. Commit messages are written in English, Conventional Commits style (`feat:`, `fix:`, `docs:`, `chore:`…): a short imperative subject, then a body explaining the *why* for non-trivial changes.
 - No tags or releases unless the maintainer asks.
+- **This repository is public and `master` is protected** (pull request required, no force-push, no deletion, applies to admins too). Everything committed is publicly readable forever: never commit secrets, tokens, personal data or real participant lists.
 - This repository has a **sibling**: `fate-of-the-adventurers-twitch` (same engine plus the Twitch integration). A change to a *shared file* (see below) needs the matching branch and pull request there.
 
 ## Project
@@ -26,7 +27,7 @@ Static, single-page app (no server, no install) to run a live, fair draw of in-g
 | `index.html` | The whole UI and the page script: renders the engine state and sends commands. Contains an **adapter** section (`MODE = 'manual'`) that runs the engine locally, persists settings and the in-progress event in `localStorage`, and restores it after a refresh (F5). |
 | `core.js` | **Shared** pure engine (no DOM): settings and limits, validation, rotation, eligibility, state machine with a single phase scheduler, snapshot/restore. |
 | `i18n.js` + `locales/en.js`, `locales/es.js` | **Shared** i18n module and catalogs. |
-| `img/` | Celestial images. Third-party artwork: do not redistribute outside the private repo. |
+| `img/` | Celestial images. Third-party artwork (not owned by the maintainer): do not add more of it or redistribute it elsewhere; the maintainer decides if it must be replaced. |
 | `README.md` / `README.es.md` | User docs (EN / ES). |
 
 The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic scripts (so it works from `file://`). Keep those relative paths.
