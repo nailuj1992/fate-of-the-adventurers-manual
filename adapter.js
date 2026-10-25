@@ -13,7 +13,7 @@ const ADAPTER = { name: 'manual', twitchNames: false, helpSuffix: '_manual' };
 document.body.classList.add('manual');
 const CFG_KEY = 'celestiales.config.v1', STATE_KEY = 'celestiales.state.v1';      // localStorage: solo configuración y estado del evento (nunca credenciales)
 let savedConfig = { ...Core.DEFAULT_CONFIG };
-try { const r = JSON.parse(localStorage.getItem(CFG_KEY) || 'null'); if (r) savedConfig = Core.validateConfig(r).config; } catch(e){}
+try { const r = JSON.parse(localStorage.getItem(CFG_KEY) || 'null'); if (r) savedConfig = Core.validateConfig(r).config; } catch(e){ /* sin almacenamiento o configuración dañada: se usan los valores por defecto */ }
 const engine = new Core.Engine({ onChange: () => publish() });
 function publish(){
   const v = engine.view();
@@ -22,9 +22,9 @@ function publish(){
   setState(v);
   try {                                                  // sobrevivir a un F5: se guarda el estado con su hora límite absoluta
     if (engine.screen === 'admin') localStorage.removeItem(STATE_KEY); else localStorage.setItem(STATE_KEY, JSON.stringify(engine.snapshot()));
-  } catch(e){}
+  } catch(e){ /* sin almacenamiento disponible: el evento sigue en memoria, solo no sobrevivirá a un F5 */ }
 }
-function saveCfg(cfg){ savedConfig = cfg; try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch(e){} }
+function saveCfg(cfg){ savedConfig = cfg; try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch(e){ /* sin almacenamiento: la configuración dura mientras la página esté abierta */ } }
 const fail = (code, extra = {}) => ({ ok:false, errorKey:'err.' + code, errorParams:{}, ...extra });
 async function api(name, body){
   let r;
@@ -57,6 +57,6 @@ function boot(){
   try {
     const snap = JSON.parse(localStorage.getItem(STATE_KEY) || 'null');
     if (snap && engine.restore(snap)) { toast(t('toast.restored')); return; }
-  } catch(e){}
+  } catch(e){ /* sin almacenamiento o estado guardado ilegible: se arranca desde cero */ }
   publish();
 }
