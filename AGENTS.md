@@ -46,7 +46,7 @@ The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic
 
 ## Domain rules (invariants — do not break them without the maintainer's OK)
 
-- **Randomness:** only `crypto.getRandomValues` with rejection sampling (`secureIndex`). Never `Math.random` for choosing winners. The draw happens when the countdown ends.
+- **Randomness:** only `crypto.getRandomValues` with rejection sampling (`secureIndex`). Never `Math.random` for choosing winners. The participant list is also shuffled at start with `secureShuffle` (Fisher–Yates over `secureIndex`); with an injected `pick` (tests) the shuffle is off unless a `shuffle` is injected. A draw with a single eligible person skips the countdown and the roll. The draw happens when the countdown ends.
 - **Rounds:** `prizes` (1–50) main rounds; Celestial = `CELESTIALS[round % 3]` (Niuzao → Yu'lon → Chi-ji). An absence does not change the Celestial; rotation advances only on a confirmed winner or a deserted round.
 - **Eligibility** is computed from records: not a winner, not globally disqualified, not absent **in that same round**. Absent people can be drawn in later rounds and in Xuen.
 - **Winners** excluded forever; one prize per person. **Global disqualification**: confirmation + written reason (≥ 3 chars), excluded from all remaining rounds, Xuen included.
