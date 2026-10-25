@@ -29,8 +29,17 @@ Static, single-page app (no server, no install) to run a live, fair draw of in-g
 | `i18n.js` + `locales/en.js`, `locales/es.js` | **Shared** i18n module and catalogs. |
 | `img/` | Celestial images. Third-party artwork (not owned by the maintainer): do not add more of it or redistribute it elsewhere; the maintainer decides if it must be replaced. |
 | `README.md` / `README.es.md` | User docs (EN / ES). |
+| `.github/workflows/pages.yml` | Builds, validates and deploys the site to GitHub Pages. |
 
 The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic scripts (so it works from `file://`). Keep those relative paths.
+
+## Deployment (GitHub Pages)
+
+- The site is published at **https://nailuj1992.github.io/fate-of-the-adventurers-manual/** by `.github/workflows/pages.yml`: every push to `master` builds the site, validates it and deploys it. Pull requests only build and validate (no deploy). It can also be run manually (*Actions → Run workflow*) from `master`.
+- Only the files the browser needs are published (`index.html`, `core.js`, `i18n.js`, `locales/`, `img/`); `README*`, `AGENTS.md` and `.github/` are not.
+- The page is served from a **sub-path**, so every reference must stay **relative** (`img/…`, `locales/…`); never use absolute paths such as `/core.js`.
+- **If you add a runtime file** (script, image, stylesheet) the page needs, add it to the *Assemble* and *Validate* steps of the workflow in the same pull request, or it will not be deployed.
+- Pages source is *GitHub Actions* (repository setting). Do not switch it to "deploy from a branch".
 
 ## Domain rules (invariants — do not break them without the maintainer's OK)
 
@@ -67,7 +76,8 @@ The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js` as classic
 ## Restrictions
 
 - **Never push to `master` directly**; never push tags; never force-push.
-- Don't add dependencies, a bundler or a framework; the page must keep working from `file://`.
+- Don't add dependencies, a bundler or a framework; the page must keep working from `file://` and from the Pages sub-path.
+- Don't change `.github/workflows/` unless asked (it deploys to production on every merge to `master`). Never add secrets or tokens to the workflow or to the published files.
 - Never store credentials or personal data beyond the participant names the presenter types (kept only in the page / `localStorage`).
 - Don't remove the English default or let the browser language pick the UI language.
 - Don't change the Celestial artwork or names without being asked.
