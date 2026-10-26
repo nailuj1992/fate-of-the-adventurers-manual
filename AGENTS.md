@@ -10,7 +10,7 @@ Guidance for AI coding agents working in this repository.
 - Commit only what you were asked to commit: run `git status` first. Commit messages are written in English, Conventional Commits style (`feat:`, `fix:`, `docs:`, `chore:`…): a short imperative subject, then a body explaining the *why* for non-trivial changes.
 - No tags or releases unless the maintainer asks.
 - **This repository is public and `master` is protected** (pull request required, no force-push, no deletion, applies to admins too). Everything committed is publicly readable forever: never commit secrets, tokens, personal data or real participant lists.
-- This repository has a **sibling**: `fate-of-the-adventurers-twitch` (same engine plus the Twitch integration). A change to a *shared file* (see below) needs the matching branch and pull request there.
+- This repository has a **sibling**: `fate-of-the-adventurers-twitch` (same engine plus the Twitch integration). A change to a *shared file* (see below) needs the matching branch and pull request there, with the same branch name, each linking the other. **Merge this (manual) PR first**, then the Twitch one: the Twitch CI `parity` job compares against this repo's `master` and fails until it has the change. Do not merge a PR yourself.
 
 ## Project
 
@@ -52,7 +52,7 @@ The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js`, `ui/*.js`
 - **Randomness:** only `crypto.getRandomValues` with rejection sampling (`secureIndex`). Never `Math.random` for choosing winners. The participant list is also shuffled at start with `secureShuffle` (Fisher–Yates over `secureIndex`); with an injected `pick` (tests) the shuffle is off unless a `shuffle` is injected. A draw with a single eligible person skips the countdown and the roll. The draw happens when the countdown ends.
 - **Rounds:** `prizes` (1–50) main rounds; Celestial = `CELESTIALS[round % 3]` (Niuzao → Yu'lon → Chi-ji). An absence does not change the Celestial; rotation advances only on a confirmed winner or a deserted round.
 - **Eligibility** is computed from records: not a winner, not globally disqualified, not absent **in that same round**. Absent people can be drawn in later rounds and in Xuen.
-- **Winners** excluded forever; one prize per person. **Global disqualification**: confirmation + written reason (≥ 3 chars), excluded from all remaining rounds, Xuen included.
+- **Winners** excluded forever; one prize per person. **Global disqualification**: confirmation + written reason (`Core.REASON`: 3–200 chars), excluded from all remaining rounds, Xuen included.
 - **Deserted round** → its prize goes to recovery. **Xuen** only if prizes remain unassigned; one absent in Xuen is out of all of Xuen.
 - **One timer:** every phase goes through the engine's scheduler. The confirmation clock starts when the reveal ends; animations never consume it. Settings are locked once the event starts.
 - **Prize codes are never shown or stored.**
@@ -60,7 +60,10 @@ The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js`, `ui/*.js`
 ## Conventions
 
 - **i18n.** Every user-facing string goes through `I18n.t(...)` / `data-i18n`; engine messages are *keys + params*. **English is the default**, independent of the browser language. Every key in **both** catalogs with the same `{params}`. Spanish uses correct orthography (accents, `ñ`). User-entered data is never translated.
-- **Persistence:** `localStorage` only for settings (`celestiales.config.v1`), the in-progress event (`celestiales.state.v1`) and the language (`celestiales.locale`). Always wrap access in `try/catch`; the app must work when storage is unavailable. Never store credentials.
+- **Persistence:** `localStorage` only for settings (`celestiales.config.v1`), the in-progress event (`celestiales.state.v1`) and the language (`celestiales.locale`). Always wrap access in `try/catch`; the app must work when storage is unavailable, and each `catch` carries a comment saying what happens instead (the code analysis flags empty ones). `Engine.restore` does not validate the shape of a saved `v:1` snapshot (known, logged as D-9 in the Twitch repo's `docs/REFACTORING.md`). Never store credentials.
+- **Classic scripts, fixed order.** `index.html` loads `locales`, `i18n`, `core`, `ui/util`, `ui/state`, `ui/admin`, `ui/stage`, `ui/fx`, `adapter`, `ui/main`. Top-level code may only reference symbols from its own file or earlier ones; no ES modules (they do not load from `file://`).
+- **One definition per rule.** The Twitch-login rule, the disqualification reason limits and the random index come from `core.js` (`Core.LOGIN_RE`, `Core.REASON`, `Core.secureIndex`); do not copy them into the page. Engine failures arrive as `{ok:false, errorKey, errorParams}` and `errText` translates them; never show a raw exception message.
+- **CSS.** `css/app.css` is shared and identical to the Twitch one: transitions name their properties, `prefers-reduced-motion` turns the decorative animations off, and `!important` is avoided except `.hide{display:none!important}` (it must beat the inline `display:flex` of some stage blocks).
 - **Shared files** (`core.js`, `i18n.js`, `locales/*`, `css/app.css`, `ui/*.js`) must stay **byte-identical** with the sibling repo.
 - **UI parity.** `index.html` here and `public/index.html` in the Twitch repo are byte-identical; the only UI file that differs is `adapter.js` (`ADAPTER` capabilities, `api()`, `boot()`). The shared code asks the capabilities (`ADAPTER.twitchNames`, `ADAPTER.helpSuffix`) instead of "which version am I". `tests/shared.test.js` in the Twitch repo checks all of it. There is no generator: apply any UI change to **both** repos.
 - Style: 2-space indentation, `'use strict'`, match the surrounding code, comments in Spanish.
@@ -76,7 +79,7 @@ The page loads `locales/en.js`, `locales/es.js`, `i18n.js`, `core.js`, `ui/*.js`
 
 ## Testing
 
-- This repo has no test runner of its own. Verify by opening `index.html` in a browser: run a short event (small timings are allowed only through the engine API; the panel enforces the documented limits), switch language (EN/ES), refresh (F5) mid-event, and finish an event.
+- This repo has no test runner of its own; the sibling's CI checks that the shared files and the page here are identical to its own (`tests/shared.test.js`, job `parity`, which clones this repo's `master`). The page scripts (`ui/*.js`) and `adapter.js` have no automated tests: verify by opening `index.html` in a browser, **also by double-clicking it (`file://`)**, and say which of that you did and did not do: run a short event (small timings are allowed only through the engine API; the panel enforces the documented limits), switch language (EN/ES), refresh (F5) mid-event, and finish an event.
 - Engine/i18n changes must pass `node --test` **in the Twitch repo** (clone both side by side so the identical-copy test runs).
 - Be explicit about what you did and did not verify in a real browser.
 
