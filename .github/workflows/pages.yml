@@ -67,7 +67,7 @@ jobs:
           set -e
           for f in index.html adapter.js core.js i18n.js locales/en.js locales/es.js css/app.css \
                    ui/util.js ui/state.js ui/admin.js ui/stage.js ui/fx.js ui/main.js \
-                   img/niuzao.png img/yulon.webp img/chiji.png img/xuen.webp; do
+                   img/niuzao.webp img/yulon.webp img/chiji.webp img/xuen.webp; do
             test -s "_site/$f" || { echo "::error::Missing file in the site: $f"; exit 1; }
           done
           # Every local <script src>, <img src> and <link href> referenced by index.html must exist in the site
